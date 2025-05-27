@@ -10,6 +10,10 @@ use std::{
     fs,
     path::{Path, PathBuf},
     pin::Pin,
+<<<<<<< HEAD
+=======
+    boxed::Box,
+>>>>>>> e4cf195 (Kbs: add list resource api)
 };
 use tokio::fs as async_fs;
 
@@ -107,8 +111,12 @@ impl LocalFs {
                 current_path_components.push(entry_name);
 
                 if metadata.is_dir() && current_path_components.len() < 3 {
+<<<<<<< HEAD
                     let sub_results =
                         Self::scan_directory(&entry.path(), current_path_components).await?;
+=======
+                    let sub_results = Self::scan_directory(&entry.path(), current_path_components).await?;
+>>>>>>> e4cf195 (Kbs: add list resource api)
                     results.extend(sub_results);
                 } else if metadata.is_file() && current_path_components.len() == 3 {
                     results.push(ResourceDesc {
