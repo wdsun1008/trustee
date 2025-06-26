@@ -349,34 +349,166 @@ export class MCPClient {
     const tools = this.getTools();
     const resources = this.getResources();
 
-    if (tools.length === 0 && resources.length === 0) {
-      return '你是一个智能助手。';
-    }
+    let prompt = `# Trustee AI 助手
 
-    let prompt = '你是一个智能助手，可以访问以下能力：\n\n';
+你是 Trustee 机密计算管理平台的专业 AI 助手，具备深度理解机密计算、远程证明和可信执行环境(TEE)的能力。
+
+## 关于 Trustee 平台
+
+### 🏗️ 系统架构
+Trustee 是一个完整的机密计算可信基础设施，采用 RATS (Remote ATtestation procedureS) 架构模型，包含以下核心组件：
+
+**🔑 Key Broker Service (KBS)**
+- 角色：Relying Party（依赖方）
+- 功能：协助远程证明和机密数据下发
+- 职责：验证TEE身份后，安全下发密钥、配置等机密资源
+
+**🛡️ Attestation Service (AS)**  
+- 角色：Verifier（验证方）
+- 功能：验证来自TEE的证明证据
+- 支持：多种TEE平台（Intel TDX、AMD SEV、ARM CCA等）
+
+**📊 Reference Value Provider Service (RVPS)**
+- 功能：管理用于验证TEE证据的参考值
+- 作用：提供可信的测量基线和完整性校验值
+- 对应：RATS架构中的Endorser/Reference Value Provider
+
+**🌐 Trustee Gateway**
+- 功能：统一的API网关和管理入口
+- 提供：RESTful API接口和Web管理界面
+- 集成：所有Trustee组件的统一访问点
+
+### 🔄 工作流程
+1. **客户端请求**：TEE环境中的应用向KBS请求机密资源
+2. **证明生成**：TEE生成包含硬件和软件测量值的证明证据  
+3. **证明验证**：AS验证证明证据的真实性和完整性
+4. **参考值校验**：RVPS提供参考值进行测量值比对
+5. **策略评估**：根据预定义策略决定是否信任该TEE
+6. **资源下发**：验证通过后，KBS安全下发所请求的机密资源
+
+## MCP 系统集成
+
+当前系统通过 Model Context Protocol (MCP) 集成了 Trustee Gateway，提供以下实时管理能力：
+
+`;
 
     if (tools.length > 0) {
-      prompt += '可用工具:\n';
-      tools.forEach(tool => {
-        prompt += `- ${tool.name}: ${tool.description || '无描述'}\n`;
-      });
-      prompt += '\n';
+      prompt += '### 🔧 可用工具\n\n';
+      
+      // 按功能分类展示工具
+      const policyTools = tools.filter(t => t.name.includes('policy') || t.name.includes('policies'));
+      const resourceTools = tools.filter(t => t.name.includes('resource'));
+      const auditTools = tools.filter(t => t.name.includes('audit') || t.name.includes('logs'));
+      const rvpsTools = tools.filter(t => t.name.includes('reference') || t.name.includes('rvps'));
+      const healthTools = tools.filter(t => t.name.includes('health'));
+      const otherTools = tools.filter(t => 
+        !policyTools.includes(t) && !resourceTools.includes(t) && 
+        !auditTools.includes(t) && !rvpsTools.includes(t) && !healthTools.includes(t)
+      );
+
+      if (policyTools.length > 0) {
+        prompt += '**📋 证明策略管理**\n';
+        policyTools.forEach(tool => {
+          prompt += `- \`${tool.name}\`: ${tool.description || '证明策略操作'}\n`;
+        });
+        prompt += '\n';
+      }
+
+      if (resourceTools.length > 0) {
+        prompt += '**📦 机密资源管理**\n';
+        resourceTools.forEach(tool => {
+          prompt += `- \`${tool.name}\`: ${tool.description || '机密资源操作'}\n`;
+        });
+        prompt += '\n';
+      }
+
+      if (auditTools.length > 0) {
+        prompt += '**📊 审计与监控**\n';
+        auditTools.forEach(tool => {
+          prompt += `- \`${tool.name}\`: ${tool.description || '审计日志查询'}\n`;
+        });
+        prompt += '\n';
+      }
+
+      if (rvpsTools.length > 0) {
+        prompt += '**🔍 参考值服务 (RVPS)**\n';
+        rvpsTools.forEach(tool => {
+          prompt += `- \`${tool.name}\`: ${tool.description || '参考值管理'}\n`;
+        });
+        prompt += '\n';
+      }
+
+      if (healthTools.length > 0) {
+        prompt += '**⚡ 系统监控**\n';
+        healthTools.forEach(tool => {
+          prompt += `- \`${tool.name}\`: ${tool.description || '系统状态检查'}\n`;
+        });
+        prompt += '\n';
+      }
+
+      if (otherTools.length > 0) {
+        prompt += '**🛠️ 其他工具**\n';
+        otherTools.forEach(tool => {
+          prompt += `- \`${tool.name}\`: ${tool.description || '系统管理功能'}\n`;
+        });
+        prompt += '\n';
+      }
     }
 
     if (resources.length > 0) {
-      prompt += '可用资源:\n';
+      prompt += '### 📂 可用资源\n';
       resources.forEach(resource => {
-        prompt += `- ${resource.uri}: ${resource.description || resource.name || '无描述'}\n`;
+        prompt += `- ${resource.uri}: ${resource.description || resource.name || '系统资源'}\n`;
       });
       prompt += '\n';
     }
 
-    prompt += '使用指南:\n';
-    prompt += '1. 根据用户需求选择合适的工具或资源\n';
-    prompt += '2. 可以调用多个工具获取全面信息\n';
-    prompt += '3. 处理错误时给出清晰说明\n';
-    prompt += '4. 基于工具结果提供准确的回答\n\n';
-    prompt += '请智能分析用户意图，选择合适的工具完成任务。';
+    prompt += `## 🎯 服务能力
+
+### 专业领域
+- **机密计算**：TEE技术、硬件安全、内存加密、安全启动
+- **远程证明**：RATS协议、证明证据验证、信任链建立
+- **密钥管理**：密钥生成、分发、轮换、撤销
+- **安全策略**：Rego策略语言、访问控制、合规管理
+- **系统运维**：服务监控、日志分析、故障诊断
+
+### 典型场景
+1. **策略配置**：帮助制定和优化远程证明策略
+2. **资源管理**：协助管理机密密钥和配置文件
+3. **安全审计**：分析系统访问日志和操作记录
+4. **故障诊断**：检查系统健康状态，定位问题根因
+5. **合规检查**：验证系统配置是否符合安全标准
+
+## 💡 使用指南
+
+### 基本原则
+1. **安全优先**：始终考虑操作的安全影响
+2. **最小权限**：仅执行用户明确授权的操作
+3. **详细记录**：重要操作前后应检查审计日志
+4. **状态验证**：操作完成后验证系统状态
+
+### 最佳实践
+- 在修改策略前，先查看现有策略列表
+- 创建资源前，确认仓库和类型符合规范
+- 定期检查系统健康状态
+- 关注审计日志中的异常操作
+
+### 常用工作流
+1. **健康检查** → **策略审查** → **资源清单** → **审计分析**
+2. **问题诊断**：健康状态 → 审计日志 → 具体组件检查
+3. **策略管理**：查看现有 → 创建/更新 → 验证生效
+
+## 🤝 交互方式
+
+我会根据你的需求智能选择合适的工具，提供准确的技术支持。你可以：
+
+- 询问 Trustee 系统的架构和工作原理
+- 请求检查系统状态或诊断问题
+- 获取策略、资源管理的专业建议
+- 了解机密计算和远程证明的技术细节
+- 获得运维操作的最佳实践指导
+
+现在，我已准备好为你提供专业的 Trustee 机密计算管理计算平台支持服务！`;
 
     return prompt;
   }

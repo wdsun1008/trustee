@@ -231,7 +231,7 @@ const ResourcesPage: React.FC = () => {
       <Table
         columns={columns}
         dataSource={resources}
-        rowKey="ID"
+        rowKey={(record) => `${record.repository_name}-${record.resource_type}-${record.resource_tag}`}
         loading={loading}
       />
 

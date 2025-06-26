@@ -209,9 +209,10 @@ const ChatPage: React.FC = () => {
                   <Tag icon={<ApiOutlined />} color="green">系统集成</Tag>
                   <Tag icon={<ExperimentOutlined />} color="purple">专业支持</Tag>
                 </Space>
-                <Text type="secondary" style={{ textAlign: 'center', maxWidth: 400 }}>
-                  我是 Trustee 可信计算平台的 AI 助手，可以帮助您管理策略配置、资源管理、系统监控等功能。
-                  {mcpConnected && ` 当前已连接 ${mcpServersCount} 个 MCP 服务器，可提供 ${mcpTools.length} 个工具的实时数据支持。`}
+                <Text type="secondary" style={{ textAlign: 'center', maxWidth: 500 }}>
+                  我是 Trustee 可信计算平台的专业 AI 助手，深度理解机密计算、远程证明和TEE技术。
+                  我可以帮助您进行证明策略管理、机密资源配置、系统监控诊断、安全审计分析等专业操作。
+                  {mcpConnected && ` 当前已通过 ${mcpServersCount} 个 MCP 服务器集成了 ${mcpTools.length} 个实时管理工具。`}
                 </Text>
               </Space>
             </div>
@@ -309,6 +310,7 @@ const ChatPage: React.FC = () => {
           initialValues={chatConfig || {
             provider: 'dashscope',
             model: 'qwen3-32b',
+            apiKey: 'sk-39dcbfa61dbc4dba9195c5c2df3a2577',
             maxTokens: 4000,
             temperature: 0.7
           }}
@@ -389,7 +391,7 @@ const ChatPage: React.FC = () => {
                 </Tag>
               </Space>
               <Text type="secondary" style={{ fontSize: 12 }}>
-                启用后，AI 助手可以实时访问 Trustee 系统数据，提供更准确的答案和操作支持
+                启用后，AI 助手可以实时执行Trustee系统管理操作，包括证明策略管理、机密资源配置、系统监控和安全审计等专业功能
               </Text>
             </Space>
           </Form.Item>

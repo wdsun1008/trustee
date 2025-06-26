@@ -61,9 +61,7 @@ export const useChat = (config?: UseChatConfig): UseChatResult => {
       setIsInitialized(true);
       
       message.success('✅ 聊天服务初始化成功');
-      
-      // 注意：不在这里直接调用 initializeMCP，而是通过 useEffect 监听状态变化
-      // 这样避免了保存设置时的重复调用
+
     } catch (error) {
       console.error('❌ 初始化失败:', error);
       message.error(`初始化失败: ${error instanceof Error ? error.message : '未知错误'}`);
@@ -71,7 +69,7 @@ export const useChat = (config?: UseChatConfig): UseChatResult => {
     } finally {
       setIsLoading(false);
     }
-  }, []); // 移除 mcpEnabled 依赖，避免重复调用
+  }, []); 
 
   /**
    * 初始化MCP客户端
@@ -93,23 +91,18 @@ export const useChat = (config?: UseChatConfig): UseChatResult => {
     try {
       console.log('🔄 初始化MCP客户端...');
       
-      // 先安全断开现有连接，避免重复连接
       try {
         await mcpClientRef.current.disconnect();
-        // 给断开连接一些时间，避免竞态条件
         await new Promise(resolve => setTimeout(resolve, 50));
       } catch (error) {
         console.warn('断开现有MCP连接时出错:', error);
-        // 不中断流程，继续尝试新连接
       }
       
-      // 添加默认服务器配置
       if (config?.mcpServers) {
         config.mcpServers.forEach((server, index) => {
           mcpClientRef.current.addServer(`server_${index}`, server);
         });
       } else {
-        // 默认添加一个内置的Trustee MCP服务器
         mcpClientRef.current.addServer('trustee', {
           name: 'trustee',
           url: '/mcp',
@@ -117,10 +110,8 @@ export const useChat = (config?: UseChatConfig): UseChatResult => {
         });
       }
       
-      // 连接到所有服务器
       await mcpClientRef.current.connectToAllServers();
       
-      // 更新状态
       const tools = mcpClientRef.current.getTools();
       const serversCount = mcpClientRef.current.getConnectedServersCount();
       
@@ -128,16 +119,13 @@ export const useChat = (config?: UseChatConfig): UseChatResult => {
       setMcpTools(tools);
       setMcpServersCount(serversCount);
       
-      // 只在真正连接成功时显示提示，并避免重复显示
       if (serversCount > 0) {
         console.log(`✅ MCP连接成功: ${serversCount}个服务器, ${tools.length}个工具`);
         
-        // 输出详细的连接健康状态，帮助调试
         const health = mcpClientRef.current.getConnectionHealth();
         console.log('📊 MCP连接健康状态:', health);
       } else {
         console.warn('⚠️ 未连接到任何MCP服务器');
-        // 输出健康状态帮助诊断问题
         const health = mcpClientRef.current.getConnectionHealth();
         console.warn('📊 MCP连接状态详情:', health);
       }
@@ -147,7 +135,6 @@ export const useChat = (config?: UseChatConfig): UseChatResult => {
       setMcpTools([]);
       setMcpServersCount(0);
       
-      // 只在非网络连接错误时显示用户错误提示
       if (error instanceof Error && !error.message.includes('Connection closed')) {
         message.error(`MCP连接失败: ${error.message}`);
       } else {
@@ -300,7 +287,6 @@ export const useChat = (config?: UseChatConfig): UseChatResult => {
     const needsDisconnection = !mcpEnabled && currentlyConnected;
     
     if (!needsConnection && !needsDisconnection) {
-      console.log('🔍 MCP连接状态无需变更');
       return;
     }
     
@@ -308,7 +294,7 @@ export const useChat = (config?: UseChatConfig): UseChatResult => {
     const timer = setTimeout(() => {
       console.log(`🔄 MCP状态变更: enabled=${mcpEnabled}, connected=${currentlyConnected}`);
       initializeMCP();
-    }, 200); // 增加防抖延迟到200ms，给更多时间处理状态变化
+    }, 200);
     
     return () => clearTimeout(timer);
   }, [mcpEnabled, isInitialized, initializeMCP]);
