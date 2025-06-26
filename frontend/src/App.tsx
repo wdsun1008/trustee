@@ -10,6 +10,7 @@ const ResourcesPage = lazy(() => import('./pages/ResourcesPage'));
 const AuditPage = lazy(() => import('./pages/AuditPage'));
 const AAInstancePage = lazy(() => import('./pages/AAInstancePage'));
 const RvpsPage = lazy(() => import('./pages/RvpsPage'));
+const ChatPage = lazy(() => import('./pages/ChatPage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -58,6 +59,7 @@ const App: React.FC = () => (
         <Route path="audit" element={<AuditPage />} />
         <Route path="aa-instances" element={<AAInstancePage />} />
         <Route path="rvps" element={<RvpsPage />} />
+        <Route path="chat" element={<ChatPage />} />
       </Route>
       
       <Route path="*" element={<Navigate to="/" replace />} />

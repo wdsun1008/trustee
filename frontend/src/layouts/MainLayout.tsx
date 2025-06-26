@@ -7,7 +7,8 @@ import {
   AuditOutlined,
   CloudServerOutlined,
   TeamOutlined,
-  LogoutOutlined
+  LogoutOutlined,
+  RobotOutlined
 } from '@ant-design/icons';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { setAuthToken } from '@/api';
@@ -80,6 +81,11 @@ const MainLayout: React.FC = () => {
               key: 'rvps',
               icon: <CloudServerOutlined />,
               label: <Link to="/rvps">参考值服务</Link>,
+            },
+            {
+              key: 'chat',
+              icon: <RobotOutlined />,
+              label: <Link to="/chat">AI 助手</Link>,
             },
           ]}
         />
