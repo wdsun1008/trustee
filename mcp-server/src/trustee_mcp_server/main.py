@@ -67,6 +67,13 @@ async def main():
     )
     
     parser.add_argument(
+        "--http-transport",
+        choices=["sse", "streamable-http"],
+        default="sse",
+        help="HTTP传输类型：sse（Server-Sent Events）或 streamable-http（默认：sse）"
+    )
+    
+    parser.add_argument(
         "--debug",
         action="store_true",
         help="启用调试模式"
@@ -93,9 +100,10 @@ async def main():
             logger.info(
                 "启动Trustee MCP服务器 (HTTP模式)", 
                 host=args.host, 
-                port=args.port
+                port=args.port,
+                transport=args.http_transport
             )
-            await server.run_http(host=args.host, port=args.port)
+            await server.run_http(host=args.host, port=args.port, transport=args.http_transport)
 
     except KeyboardInterrupt:
         logger.info("Received interrupt, shutting down gracefully")

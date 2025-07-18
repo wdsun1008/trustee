@@ -317,13 +317,20 @@ class TrusteeMCPServer:
             await self.cleanup()
             raise
 
-    async def run_http(self, host: str = "0.0.0.0", port: int = 8000):
-        """Run server with HTTP transport for remote access."""
+    async def run_http(self, host: str = "0.0.0.0", port: int = 8000, transport: str = "sse"):
+        """Run server with HTTP transport for remote access.
+        
+        Args:
+            host: Host to bind to
+            port: Port to bind to
+            transport: Transport type ('sse' or 'streamable-http')
+        """
         logger.info("Starting Trustee MCP Server with HTTP transport", 
-                    host=host, port=port)
+                    host=host, port=port, transport=transport)
         try:
-            # Use the specific http async method with root path for Cursor compatibility
-            await self.mcp.run_http_async(host=host, port=port)
+            # Use the specific http async method with transport configuration
+            # FastMCP will use SSE transport when transport="sse" is specified
+            await self.mcp.run_http_async(host=host, port=port, transport=transport)
         except Exception as e:
             logger.error("Server failed to start", error=str(e))
             await self.cleanup()
